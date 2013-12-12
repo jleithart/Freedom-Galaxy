@@ -28,6 +28,8 @@ class AI:
 		print("Listing all games")
 		pprint(glist)
 
+		environ_list = self.client.root.get_state(gameid, "environ")# = all environs in this scenario
+
 		# Adding validate_only=True to any call will only validate if 
 		# it's possible.
 		# You need to catch an IntegrityError when calling this since 
@@ -43,28 +45,45 @@ class AI:
 		# ASSASSINATION: A
 		# STOP REBELLION: R
 		# GAIN CHARACTERS: G
-
-		environ_list # = all environs in this scenario
-
-		#when it's our turn
-		while(run):
+		environ_list = self.client.root.get_state(gameid, "Environ")# = all environs in this scenario
+		# when it's our turn
+		while(True):
 			reactionMove = False
 			if(ourTurn):
-				stack_list = selt.client.root.get_state(#g = et our stacks
-				character_stack_list # = get our character stack list
+				#reset the lists because they can/will change
+				our_unit_stack_list = []
+				their_unit_stack_list = []
+				our_characters = []
+				their_characters = []
+				global_stack_list = self.client.root.get_state(gameid, "Stack") #get our stacks
+				character_stack_list = self.client.root.get_state(gameid, "Character")
+				for stack in global_stack_list.units:
+					if stack.side == "Imperial":
+						our_unit_stack_list.append(stack)
+					else:
+						their_unit_stack_list.append(stack)
+				for stack in character_stack_list:
+					if stack.side == "Imperial":
+						our_characters.append(stack)
+					else:
+						their_characters.append(stack)
 
-				enemy_stack_list # = get their stacks that we can see
+				# enemy_character_stack_list
 				#if any planet is in rebellion
 				# is this an ID or an object?
-				if planet_in_rebellion:
+				planet = planet_in_rebellion()
+				if planet is not None:
+					tmpEnviron
 					# this is NOT for combat 
-					self.client.root.move(character_stack, game_id, "stack");
-										  game_name="test", 
-										  planet_in_rebellion.location)
-					# switching the for below into a function
-					MoveStrongestUnits(planet_in_rebellion.id)
+					self.client.root.move(our_characters, planet.location)
+					
+					#need to grab an environ for the planet
+					#grab the last environ just to get something
+					for environ in planet.environs:
+						tmpEnviron = environ
+					MoveStrongestUnits(tmpEnviron.id)
 					for enemy_stack in enemy_stack_list:
-						if(enemy_stack.stack_detection() && enemy_stack.location == planet_in_rebellion.location):
+						if(enemy_stack.stack_detection() && enemy_stack.environ_id == tmpEnviron.id):
 							# don't know what my options are
 							# probably no options because we want 
 							# all the characters to be available for missions
@@ -124,26 +143,22 @@ class AI:
 				ourTurn = False
 			else:
 				#reactionary move?
-
-				# get all enemies (even the non-detected ones) sorted
-				# list please
-				enemy_stack_list 
-				
-				# get all stacks of military units -- sorted list please
-				stack_list 
-				for enemy_stack in enemy_stack_list:
-					for stack in stack_list:
-						if stack.location != enemy_stack.location 
+				# do we want this at all?
+				for enemy_stack in their_unit_stack_list:
+					for stack in our_unit_stack_list:
+						if stack.environ_id != enemy_stack.environ_id 
 											 and not reactionMove:
-							unit = stack.units.pop()
-							self.client.root.move(unit,
+							unit = self.client.root.split_stack(stack.id)
+
+							self.client.root.move(unit.stack_id,
 												  game_name="test",
 												  enemy_stack.location)
 							reactionMove = True
 						if enemy_stack.location == stack.location:
 							#do we search and therefore fight?
 							if random() < 0.50:
-								Search(stack, enemy_stack)
+								#search not yet implemented
+								#Search(stack, enemy_stack)
 				#is someone detected in the environ we are in? do we want 
 				# to search?
 				#reaction move
@@ -177,6 +192,13 @@ def MoveStrongestUnits(environid):
 				self.client.root.merge_stack(session, moving_stack, new_location_stack)
 
 		num_units += 1
+
+def planet_in_rebellion():
+	list_of_planets = self.client.root.get_state(gameid, "Planet")
+	for planet in list_of_planets:
+		if planet.in_rebellion:
+			return planet
+	return None
 
 
 if __name__ == '__main__':

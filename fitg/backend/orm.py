@@ -120,12 +120,7 @@ class Unit(Base):
     endurance = Column(Integer)    
     environ_combat = Column(Integer)
     space_combat = Column(Integer)
-<<<<<<< HEAD
-    mobile = Column(Boolean)
-    wounds = Column(Integer)  
-=======
     mobile = Column(Boolean) 
->>>>>>> hall5714/master
     stack_id = Column(Integer, ForeignKey('stacks.id'))
     
     def __init__(self, type, side, environ_combat, space_combat, endurance, mobile):
@@ -166,13 +161,9 @@ class Planet(Base):
     loyalty = Column(Integer)         
     environ_count = Column(Integer)
     game_id = Column(String, ForeignKey('games.id'))
-<<<<<<< HEAD
-    environs = relationship("Environ", backref="planet")    
-=======
     environs = relationship("Environ", backref="planet")
     in_rebellion = Column(Boolean)
     was_rebellion = Column(Boolean)    
->>>>>>> hall5714/master
 
     def __init__(self, control, pdb_level, pdb_state, location, name, loyalty, environ_count):
         self.pdb_level = pdb_level
